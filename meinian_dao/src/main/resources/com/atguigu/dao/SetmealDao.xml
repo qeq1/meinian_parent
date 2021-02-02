@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.dao.SetmealDao">
+    <insert id="add" parameterType="setmeal" keyProperty="id" useGeneratedKeys="true">
+        insert into t_setmeal(name, code, helpCode, sex, age, price, remark, attention, img)
+        values (#{name}, #{code}, #{helpCode}, #{sex}, #{age}, #{price}, #{remark}, #{attention}, #{img})
+    </insert>
+    <insert id="setSetmealAndTravelGroup" parameterType="map">
+        insert into t_setmeal_travelgroup
+        values (#{setmeal_id}, #{travelgroup_id})
+    </insert>
+    <select id="findPage" parameterType="string" resultType="setmeal">
+        select * from t_setmeal
+        <where>
+            <if test="value!=null and value.length>0">
+                code=#{value} or name like concat('%',#{value},'%') or helpCode=#{value}
+            </if>
+        </where>
+    </select>
+    <delete id="delete" parameterType="int">
+        delete
+        from t_setmeal
+        where id = #{id}
+    </delete>
+    <delete id="deleteSetmealAndTravelGroupBySetmealId" parameterType="int">
+        delete
+        from t_setmeal_travelgroup
+        where setmeal_id = #{id}
+    </delete>
+    <select id="findAll" resultType="setmeal">
+        select *
+        from t_setmeal
+    </select>
+    <resultMap id="findByIdResultMap" type="setmeal">
+        <id column="id" property="id"></id>
+        <result column="name" property="name"></result>
+        <result column="code" property="code"></result>
+        <result column="helpCode" property="helpCode"></result>
+        <result column="sex" property="sex"></result>
+        <result column="age" property="age"></result>
+        <result column="price" property="price"></result>
+        <result column="remark" property="remark"></result>
+        <result column="attention" property="attention"></result>
+        <result column="img" property="img"></result>
+        <collection column="id" property="travelGroups"
+                    select="com.atguigu.dao.TravelGroupDao.findTravelGroupListById"></collection>
+    </resultMap>
+    <select id="findById" parameterType="Integer" resultMap="findByIdResultMap">
+        select *
+        from t_setmeal
+        where id = #{id}
+    </select>
+    <select id="findSetmealCount" resultType="map">
+        select s.name name, count(s.id) value
+        from t_setmeal s,
+             t_order o
+             where s.id=o.setmeal_id
+        group by s.name
+    </select>
+</mapper>
+
